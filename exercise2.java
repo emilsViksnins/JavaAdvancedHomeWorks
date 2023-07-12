@@ -1,138 +1,116 @@
-package homeWorks;
+package homeWorks.exeptions;
 
+import java.util.ArrayList;
+import java.util.List;
 
 public class exercise2 {
-public static void main(String[] args) {
-        Person student = new Student("Smith", "Estonia, Tallinn ");
-        Person staff = new Staff ("Cloud engineer", "Sweden, Stockholm", 5000f);
-        System.out.println(student);
-        System.out.println(staff);
+    public static void main(String[] args) throws
+            NoBookFoundException {
+        BookRepository bookrepository = new BookRepository();
+        bookrepository.add(new Book("The freezing Order", "Bill Browder", "33452"));
+        bookrepository.add(new Book("The freezing Order Part 2" ,"Bill Browder", "9986"));
+        List<Book> book = bookrepository.findByName("??");
+        Book book1 = bookrepository.findByIsbn("??");
+        bookrepository.delete("43");
     }
 }
-class Person {
-    protected String name, address, typeOfStudies, yearOfStudy, studyPrice;
-    public Person(String name, String address){
-    }
-
-
-
-    public Person(String name, String address, String typeOfStudies, int yearOfStudy, double studyPrice){
-        this.name = name;
-        this.address = address;
-        this.typeOfStudies = typeOfStudies;
-        this.yearOfStudy = String.valueOf(yearOfStudy);
-        this.studyPrice = String.valueOf(studyPrice);
-    }
-    public String getName(){
-        return name;
-    }
-    public void setName(String name){
-        this.name = name;
-    }
-    public String getAddress(){
-        return address;
-    }
-    public void setAddress(String address){
-        this.address = address;
-    }
-    public String getTypeOfStudies() {
-        return typeOfStudies;
-    }
-    public void setTypeOfStudies(String typeOfStudies) {
-        this.typeOfStudies = typeOfStudies;
-    }
-
-    public float getYearOfStudy() {
-        return Float.parseFloat(yearOfStudy);
-    }
-    public void setYearOfStudy(String yearOfStudy) {
-        this.yearOfStudy = yearOfStudy;
-    }
-
-    public String getStudyPrice() {
-        return studyPrice;
-    }
-    public void setStudyPrice(String studyPrice) {
-        this.studyPrice = studyPrice;
-    }
-
-    @Override
-    public String toString(){
-        return String.format("%s->%s", name, address, typeOfStudies, yearOfStudy, studyPrice);
+class NoBookFoundException extends Exception {
+    public NoBookFoundException(String message) {
+        super(message);
     }
 }
+class Book {
+    private String title;
+    private String author;
+    private String isbn;
 
-class Student extends Person {
-    private String typeOfStudies;
-    private int yearOfStudy;
-    private float studiesPrice;
+    public Book(String title, String author, String isbn) {
+        this.title = title;
+        this.author = author;
+        this.isbn = isbn;
+    }
+    public String getTitle() {
+        return title;
+    }
 
-    public Student(String name, String address){
-        super(name, address);
-        this.typeOfStudies = typeOfStudies;
-        this.yearOfStudy = yearOfStudy;
-        this.studiesPrice = studiesPrice;
+    public String getAuthor() {
+        return author;
     }
-    public String getTypeOfStudies(){
-        return typeOfStudies;
+
+    public String getIsbn() {
+        return isbn;
     }
-    public void setTypeOfStudies(String typeOfStudies){
-        this.typeOfStudies = typeOfStudies;
+
+    public void setTitle(String title) {
+        this.title = title;
     }
-    public float getYearOfStudy(){
-        return yearOfStudy;
+
+    public void setAuthor(String author) {
+        this.author = author;
     }
-    public void setYearOfStudy(int yearOfStudy){
-        this.yearOfStudy = yearOfStudy;
-    }
-    public float getStudiesPrice(){
-        return studiesPrice;
-    }
-    public void setStudiesPrice(float studiesPrice){
-        this.studiesPrice = studiesPrice;
+
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
     }
     @Override
-    public String toString(){
-        return "Student{" +
-                "name=" + name + "," +
-                " address=" + address + ", " +
-                "typeOfStudies=" + typeOfStudies + ", " +
-                "yearOfStudy=" + yearOfStudy + ", " +
-                "studiesPrice=" + studiesPrice + '}';
+    public String toString() {
+        return "Book{" +
+                "title='" + title + '\'' +
+                ", author='" + author + '\'' +
+                ", isbn='" + isbn + '\'' +
+                '}';
     }
 }
- class Staff extends Person {
-     private String specialization;
-     private float salary;
+class BookRepository {
+    private List<Book> books = new ArrayList<>();
 
-     public Staff(String name, String address, float v) {
-         super(name, address);
-         this.specialization = specialization;
-         this.salary = salary;
-     }
+    public void add(Book book) {
+        this.books.add(book);
+    }
 
-     public String getSpecialization() {
-         return specialization;
-     }
+    public void delete(String isbn) throws NoBookFoundException {
+        for (Book book : books) {
+            if (book.getIsbn().equals(isbn)) {
+                return;
+            }
+        }
+        throw new NoBookFoundException("Cant find book with isbn: " + isbn);
+    }
 
-     public void setSpecialization(String specialization) {
-         this.specialization = specialization;
-     }
+    public List<Book> findByName(String name) throws
+            NoBookFoundException {
+        List<Book> booksByName = new ArrayList<>();
+        for (Book book : books) {
+            if (book.getTitle().equals(name)) {
+                booksByName.add(book);
+            }
+        }
+        if (booksByName.isEmpty()) {
+            throw new NoBookFoundException("Cant find book by name" + name);
+        }
+        return booksByName;
+    }
 
-     public float getSalary() {
-         return salary;
-     }
+    public Book findByIsbn(String s) {
+        return null;
+    }
+}
 
-     public void setSalary(float salary) {
-         this.salary = salary;
-     }
 
-     @Override
-     public String toString() {
-         return "Staff{" +
-                 "name=" + name + "," +
-                 " address=" + address + ", " +
-                 "specialization=" + specialization + ", " +
-                 "salary=" + salary + '}';
-     }
- }
+// Create the BookRepository class, which will be responsible for:
+//1.adding Book objects
+//2.removing Book objects
+//3.searching for objects of the Book type with the indicated name
+//4.searching for objects of the Book type with the indicated id
+//5.removing objects of the Book type based on the provided id
+//
+//The Book class should include the following fields:
+//1.id
+//2.title
+//3.author
+//4.year of release
+//
+// NoBookFoundException
+// In case of lack of searched results an exception should be thrown. This exception should
+// accept the String parameter object with information about which elements could not be found.
+
